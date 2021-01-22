@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!--mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm-->
+<!-- mapper 태그 선언 -->
+<!--mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm-->
+<mapper namespace="com.naver.erp.BoardDAO">
+	<!--**********************************************-->
+	<!--  게시판 글 입력하는 insert 문을 내포한 insert 태그 선언-->
+	<!--**********************************************-->
+	<insert id = 'insertBoard' parameterType="com.naver.erp.BoardDTO">
+	
+		insert into board(
+			b_no
+			,subject
+			,writer
+			,readcount
+			,content
+			,pwd
+			,email
+			,group_no
+			,print_no
+			,print_level
+		)values(
+			(select nvl(max(b_no),0)+1 from board)
+			,#{subject} <!--BoardDTO 객체의 subject 속성변수 안의 값 삽입하기 문자면 '를 앞뒤에 붙여준다-->
+			,#{writer} <!--BoardDTO 객체의 writer 속성변수 안의 값 삽입하기 문자면 '를 앞뒤에 붙여준다-->
+			,0
+			,#{content} <!--BoardDTO 객체의 content 속성변수 안의 값 삽입하기 문자면 '를 앞뒤에 붙여준다-->
+			,#{pwd} <!--BoardDTO 객체의 pwd 속성변수 안의 값 삽입하기 문자면 '를 앞뒤에 붙여준다-->
+			,#{email} <!--BoardDTO 객체의 email 속성변수 안의 값 삽입하기 문자면 '를 앞뒤에 붙여준다-->
+			
+			,(select nvl(max(b_no),0)+1 from board) <!--그룹번호를 PK 값으로 삽입-->
+			,0<!--같은그룹내의 출력순서번호 0을 삽입-->
+			,0<!--들여쓰기 레벨번호 0을 삽입-->
+		)
+	</insert>
+	
+	<!--**********************************************-->
+	<!--  게시판 검색하는 select 문을 내포한 select 태그 선언  -->
+	<!--**********************************************-->
+	<select id="getBoardList" resultType="java.util.HashMap">
+			select 
+				b_no||'' 							 "b_no"
+				,subject 							 "subject"
+				,writer  							 "writer"
+				,readcount||'' 						 "readcount"
+				,to_char(reg_date, 'YYYY-MM-DD'||'') "reg_date"	
+				,print_level||'' 						 "print_level"							
+			from board
+			order by
+				group_no desc
+				,print_no asc
+	</select>
+	
+	<!--**********************************************-->
+	<!-- 게시판 1개 글 검색하는 select 문을 내포한 select 태그 선언  -->
+	<!--**********************************************-->
+	<select id="getBoard" parameterType="int" resultType="com.naver.erp.BoardDTO">
+		select 
+				b_no						"b_no"
+				,subject 					"subject"
+				,writer  					"writer"
+				,reg_date 					"reg_date"
+				,readcount					"readcount"
+				,content 					"content"
+				,pwd 						"pwd"
+				,email 						"email"
+				,group_no 					"group_no"
+				,print_no 					"print_no" 
+				,print_level 				"print_level"							
+		from board
+		where b_no=#{b_no}
+	
+	
+	</select>
+	
+	<!--**********************************************-->
+	<!-- 게시판 1개 글 수정하는 update 문을 내포한 update 태그 선언  -->
+	<!--**********************************************-->
+	<update id="updateReadcount" parameterType="int">
+		update board set readcount = readcount+1
+		where b_no=#{b_no}
+	</update>
+</mapper>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
